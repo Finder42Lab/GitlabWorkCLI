@@ -16,7 +16,6 @@
           version = "0.1.0";
 
           src = ./.;
-          buildType = "release";
 
           cargoLock = {
             lockFile = ./Cargo.lock;
@@ -25,11 +24,6 @@
           nativeBuildInputs = [ pkgs.pkg-config ];
           buildInputs = [ pkgs.openssl ];
           cargoBuildFlags = [ "--bin" "aw" ];
-
-          installPhase = ''
-              mkdir -p $out/lib
-              cp target/release/aw $out/lib/
-            '';
 
           meta = with pkgs.lib; {
             description = "Gitlab Work CLI";
