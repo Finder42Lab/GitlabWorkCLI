@@ -46,6 +46,7 @@ impl GitManager {
         match self.get_existed_branch(target_branch.to_string()) {
             Ok(branch) => {
                 self.raw_checkout(branch, false)?;
+                self.pull()?;
             }
             Err(err) => {
                 match parent_branch {
@@ -56,7 +57,6 @@ impl GitManager {
                         self.raw_checkout(_parent, false)?;
                         self.pull()?;
                         self.raw_checkout(target_branch, true)?;
-                        self.pull()?;
                     }
                     None => {
                         return Err(err);
