@@ -26,7 +26,7 @@
 
           installPhase = ''
               mkdir -p $out/lib
-              cp target/${target}/${buildType}/aw $out/lib/
+              cp target/release/aw $out/lib/
             '';
 
           meta = with pkgs.lib; {
