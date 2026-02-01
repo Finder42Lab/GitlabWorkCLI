@@ -11,17 +11,23 @@
       let
         pkgs = import nixpkgs { inherit system; };
 
-        my-cli = pkgs.rustPlatform.buildRustPackage {
+        aw-cli = pkgs.rustPlatform.buildRustPackage {
           pname = "aw";
           version = "0.1.0";
 
           src = ./.;
+          buildType = "release";
 
           cargoLock = {
             lockFile = ./Cargo.lock;
           };
 
-           cargoBuildFlags = [ "--bin" "aw" ];
+          cargoBuildFlags = [ "--bin" "aw" ];
+
+          installPhase = ''
+              mkdir -p $out/lib
+              cp target/${target}/${buildType}/aw $out/lib/
+            '';
 
           meta = with pkgs.lib; {
             description = "Gitlab Work CLI";
@@ -30,7 +36,7 @@
           };
         };
       in {
-        packages.default = my-cli;
+        packages.default = aw-cli;
       }
     );
 }
