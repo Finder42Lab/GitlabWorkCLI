@@ -101,17 +101,18 @@ impl GitlabManager {
         Ok(user)
     }
 
-    pub fn create_mr(&self, source_branch: String, target_branch: String, project_id: u64, description: Option<String>,) -> Result<GlMergeRequest, String> {
+    pub fn create_mr(&self, source_branch: String, target_branch: String, project_id: u64, title: Option<String>, description: Option<String>,) -> Result<GlMergeRequest, String> {
         let current_user = self.get_current_user()?;
 
         let description = description.unwrap_or_else(|| { "".to_string() });
+        let title = title.unwrap_or_else(|| { target_branch.to_string() });
 
         let request = projects::merge_requests::CreateMergeRequest
         ::builder()
             .project(project_id)
             .source_branch(source_branch)
             .target_branch(target_branch.to_string())
-            .title(target_branch)
+            .title(title)
             .description(description)
             .assignee(current_user.id)
             .build().log_error()?;

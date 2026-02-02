@@ -10,8 +10,13 @@ pub fn create_mr_command(app_state: &AppState, project_config: &ProjectConfig, s
     Printer::print_info(format!("Исходная ветка: {}", source_branch), None);
     Printer::print_info("Определяю целевую ветку".to_string(), None);
 
+    let mr_title;
+
     let target_branch = match target_branch {
-        Some(b) => b,
+        Some(b) => {
+            mr_title = b.to_string();
+            b
+        },
         None => {
             let target;
             if source_branch.ends_with("-task") {
@@ -22,6 +27,8 @@ pub fn create_mr_command(app_state: &AppState, project_config: &ProjectConfig, s
                 if issue.epic.is_none() {
                     return Err("Не удалос определить цеевую ветку".to_string())
                 }
+
+                mr_title = format!("Resolve: {}", issue.title);
 
                 let epic = app_state.gitlab_manager.get_parent_epic(issue.epic.unwrap().iid, project_config.group_id)?;
 
@@ -47,6 +54,7 @@ pub fn create_mr_command(app_state: &AppState, project_config: &ProjectConfig, s
         source_branch,
         target_branch,
         project_config.project_id,
+        Some(mr_title),
         Some(description),
     )?;
 
