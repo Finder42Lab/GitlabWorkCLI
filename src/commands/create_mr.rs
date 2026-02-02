@@ -41,10 +41,13 @@ pub fn create_mr_command(app_state: &AppState, project_config: &ProjectConfig, s
     Printer::print_info(format!("Целевая ветка: {}", target_branch), None);
     Printer::print_info("Создаю MR...".to_string(), None);
 
+    let description = if source_branch.ends_with("-task") { format!("#{}", source_branch.replace("-task", "")) } else { "".to_string() };
+
     let mr = app_state.gitlab_manager.create_mr(
         source_branch,
         target_branch,
         project_config.project_id,
+        Some(description),
     )?;
 
     Printer::print_success(format!("Создан MR !{} ({})", mr.iid, mr.web_url), None);
