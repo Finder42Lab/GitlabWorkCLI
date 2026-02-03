@@ -1,22 +1,8 @@
-[package]
-name = "GitlabWorkCLI"
-version = "0.1.0"
-edition = "2024"
-
-[[bin]]
-name = "aw"
-path = "src/main.rs"
-
-[dependencies]
-clap = { version= "4.5.46", features = ["derive"] }
-serde = { version = "1.0.145", features = ["derive"] }
-serde_json = "1"
-log = "0.4.29"
-simplelog = "0.12"
-dirs = '6'
-git2 = '0.18'
-colored = "3"
-reqwest = { version = "*", features = ["socks"] }
-gitlab = { version = "0.1808" }
-derive_builder = "0.20.2"
-url = "2.5.8"
+[workspace]
+members = [
+    "cli",
+    "backend",
+    "helpers",
+    "managers"
+]
+resolver = "2"

@@ -3,24 +3,6 @@
 version = 4
 
 [[package]]
-name = "GitlabWorkCLI"
-version = "0.1.0"
-dependencies = [
- "clap",
- "colored",
- "derive_builder",
- "dirs",
- "git2",
- "gitlab",
- "log",
- "reqwest",
- "serde",
- "serde_json",
- "simplelog",
- "url",
-]
-
-[[package]]
 name = "addr2line"
 version = "0.25.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -116,6 +98,19 @@ name = "autocfg"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c08606f8c3cbf4ce6ec8e28fb0014a2c086708fe954eaa885384a6165172e7e8"
+
+[[package]]
+name = "backend"
+version = "0.1.0"
+dependencies = [
+ "helpers",
+ "log",
+ "managers",
+ "serde",
+ "serde_json",
+ "simplelog",
+ "url",
+]
 
 [[package]]
 name = "backtrace"
@@ -648,6 +643,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "gw"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "helpers",
+ "log",
+ "managers",
+ "simplelog",
+ "url",
+]
+
+[[package]]
 name = "h2"
 version = "0.4.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -683,6 +690,17 @@ name = "heck"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
+
+[[package]]
+name = "helpers"
+version = "0.1.0"
+dependencies = [
+ "colored",
+ "dirs",
+ "log",
+ "serde",
+ "serde_json",
+]
 
 [[package]]
 name = "http"
@@ -1088,6 +1106,19 @@ name = "lru-slab"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "112b39cec0b298b6c1999fee3e31427f74f676e4cb9879ed1a121b43661a4154"
+
+[[package]]
+name = "managers"
+version = "0.1.0"
+dependencies = [
+ "derive_builder",
+ "git2",
+ "gitlab",
+ "helpers",
+ "log",
+ "reqwest",
+ "serde",
+]
 
 [[package]]
 name = "memchr"

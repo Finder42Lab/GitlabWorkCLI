@@ -1,6 +1,6 @@
-use crate::commands::checkout_feature::checkout_feature_command;
-use crate::helpers::printer::Printer;
-use crate::structs::{AppState, ProjectConfig};
+use crate::command_handlers::checkout_feature_command;
+use helpers::{Printer, ProjectConfig};
+use crate::structs::AppState;
 
 pub fn checkout_task_command(app_state: &AppState, project_config: &ProjectConfig, task_id: u64) -> Result<(), String> {
     if app_state.git_manager.is_dirty()? {

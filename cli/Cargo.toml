@@ -1,0 +1,17 @@
+[package]
+name = "gw"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "gw"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version= "4.5.46", features = ["derive"] }
+helpers = {path = "../helpers"}
+managers = {path = "../managers"}
+
+log = "0.4.29"
+simplelog = "0.12"
+url = "2.5.8"

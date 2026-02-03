@@ -1,6 +1,5 @@
-use crate::helpers::printer::Printer;
-use crate::structs::{AppState, ProjectConfig};
-
+use helpers::{Printer, ProjectConfig};
+use crate::structs::AppState;
 pub fn create_mr_command(app_state: &AppState, project_config: &ProjectConfig, source_branch: Option<String>, target_branch: Option<String>) -> Result<(), String> {
     let source_branch = match source_branch {
         None => app_state.git_manager.get_current_branch()?,
@@ -16,7 +15,7 @@ pub fn create_mr_command(app_state: &AppState, project_config: &ProjectConfig, s
         Some(b) => {
             mr_title = b.to_string();
             b
-        },
+        }
         None => {
             let target;
             if source_branch.ends_with("-task") {
@@ -25,7 +24,7 @@ pub fn create_mr_command(app_state: &AppState, project_config: &ProjectConfig, s
                 let issue = app_state.gitlab_manager.get_issue(task_iid, project_config.project_id)?;
 
                 if issue.epic.is_none() {
-                    return Err("Не удалос определить цеевую ветку".to_string())
+                    return Err("Не удалос определить цеевую ветку".to_string());
                 }
 
                 mr_title = format!("Resolve: {}", issue.title);
@@ -38,11 +37,11 @@ pub fn create_mr_command(app_state: &AppState, project_config: &ProjectConfig, s
                     target = epic.get_branch_name();
                 }
             } else {
-                return Err("Не удалось определить целевую ветку".to_string())
+                return Err("Не удалось определить целевую ветку".to_string());
             }
 
             target
-        },
+        }
     };
 
     Printer::print_info(format!("Целевая ветка: {}", target_branch), None);

@@ -4,9 +4,9 @@ mod structs;
 use gitlab::{Gitlab};
 use gitlab::api::{groups, projects, users, Query};
 use log::error;
+use helpers::LogError;
 use crate::gitlab::builders::EpicApi;
 use crate::gitlab::structs::{GlEpic, GlGroup, GlIssue, GlMergeRequest, GlProject, GlUser};
-use crate::structs::LogError;
 
 #[derive(Clone)]
 pub struct GitlabManager {

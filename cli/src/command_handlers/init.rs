@@ -1,7 +1,7 @@
 use log::error;
 use url::Url;
-use crate::helpers::printer::Printer;
-use crate::structs::{AppState, ProjectConfig};
+use helpers::{Printer, ProjectConfig};
+use crate::structs::AppState;
 
 pub fn init_command(app_state: &AppState) -> Result<(), String> {
     // Получаем ссылку на репозиторий

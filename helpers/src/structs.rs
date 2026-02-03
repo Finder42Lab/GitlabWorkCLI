@@ -4,9 +4,7 @@ use std::io::{BufWriter, Write};
 use std::path::PathBuf;
 use log::error;
 use serde::{Deserialize, Serialize};
-use crate::git::GitManager;
-use crate::gitlab::GitlabManager;
-use crate::helpers::project_config::get_project_config_file_path;
+use crate::project_config::get_project_config_file_path;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct AppConfig {
@@ -42,13 +40,6 @@ impl ProjectConfig {
 }
 
 
-pub struct AppState {
-    pub app_config: AppConfig,
-    pub gitlab_manager: GitlabManager,
-    pub git_manager: GitManager,
-    pub path: PathBuf,
-}
-
 pub trait LogError<T>  {
     fn log_error(self,) -> Result<T, String>;
 }
@@ -65,6 +56,3 @@ where
         Ok(self.unwrap())
     }
 }
-
-
-

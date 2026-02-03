@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use std::process::Command;
 use git2::{BranchType, Repository};
 use log::error;
-use crate::helpers::printer::Printer;
+use helpers::Printer;
 
 pub struct GitManager {
     repository: Repository,

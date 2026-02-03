@@ -1,0 +1,17 @@
+[package]
+name = "backend"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "gw-backend"
+path = "src/main.rs"
+
+[dependencies]
+serde = { version = "1.0.145", features = ["derive"] }
+serde_json = "1"
+log = "0.4.29"
+simplelog = "0.12"
+url = "2.5.8"
+helpers = {path = "../helpers"}
+managers = {path = "../managers"}

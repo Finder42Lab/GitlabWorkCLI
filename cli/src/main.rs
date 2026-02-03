@@ -3,33 +3,22 @@ use std::path::PathBuf;
 use clap::Parser;
 use log::{error, LevelFilter};
 use simplelog::{CombinedLogger, Config, WriteLogger};
-use crate::cli::{Commands, GlobalConfigCommands, CLI};
-use crate::commands::checkout_feature::checkout_feature_command;
-use crate::commands::checkout_task::checkout_task_command;
-use crate::commands::create_mr::create_mr_command;
-use crate::commands::init::init_command;
-use crate::commands::update_host::update_host_command;
-use crate::commands::update_token::update_token_command;
-use crate::git::GitManager;
-use crate::gitlab::GitlabManager;
-use crate::helpers::app_config::load_app_config;
-use crate::helpers::printer::Printer;
-use crate::helpers::project_config::load_project_config;
-use crate::structs::{AppConfig, AppState, ProjectConfig};
+use crate::commands::{Commands, GlobalConfigCommands, CLI};
+use helpers::{load_app_config, Printer, load_project_config, {AppConfig, ProjectConfig}};
+use managers::{GitManager, GitlabManager};
+use structs::{AppState};
+use crate::command_handlers::{checkout_feature_command, checkout_task_command, create_mr_command, init_command, update_host_command, update_token_command};
 
 mod structs;
-mod cli;
-mod helpers;
 mod commands;
-mod gitlab;
-mod git;
+mod command_handlers;
 
 fn get_app_state(app_config: AppConfig, current_dir: PathBuf) -> Option<AppState> {
     let gitlab_manager = match GitlabManager::new((&app_config).gitlab_token.to_string(), (&app_config).gitlab_host.to_string()) {
         Ok(gm) => gm,
         Err(err) => {
             Printer::print_error(err, Some("GitLab".to_string()));
-            return None
+            return None;
         }
     };
 
@@ -37,7 +26,7 @@ fn get_app_state(app_config: AppConfig, current_dir: PathBuf) -> Option<AppState
         Ok(gm) => gm,
         Err(err) => {
             Printer::print_error(err, Some("Git".to_string()));
-            return None
+            return None;
         }
     };
 
@@ -101,7 +90,7 @@ fn process_commands(parsed_command: &Commands, project_config: &ProjectConfig, a
         Commands::MergeRequest { source, target, review } => create_mr_command(app_state, project_config, source.to_owned(), target.to_owned()),
         _ => {
             return None
-        },
+        }
     };
 
     match res {
@@ -113,8 +102,6 @@ fn process_commands(parsed_command: &Commands, project_config: &ProjectConfig, a
 
     Some(())
 }
-
-
 
 
 fn main() {
@@ -146,18 +133,18 @@ fn main() {
 
 
     match process_core_commands(&parsed_command, &config) {
-        Some(_) => {return;}
+        Some(_) => { return; }
         None => {}
     }
 
 
     let app_state = match get_app_state(config.clone(), current_dir) {
-        None => {return;}
-        Some(state) => {state}
+        None => { return; }
+        Some(state) => { state }
     };
 
     match process_base_commands(&parsed_command, &config, &app_state) {
-        Some(_) => {return;}
+        Some(_) => { return; }
         None => {}
     }
 
@@ -170,7 +157,7 @@ fn main() {
     };
 
     match process_commands(&parsed_command, &project_config, &app_state) {
-        Some(_) => {return;}
+        Some(_) => { return; }
         None => {}
     }
 
