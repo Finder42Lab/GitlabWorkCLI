@@ -11,28 +11,30 @@
       let
         pkgs = import nixpkgs { inherit system; };
 
-        aw-cli = pkgs.rustPlatform.buildRustPackage {
-          pname = "aw";
-          version = "0.1.0";
-
+        commonArgs = {
           src = ./.;
-
-          cargoLock = {
-            lockFile = ./Cargo.lock;
-          };
-
+          cargoLock.lockFile = ./Cargo.lock;
           nativeBuildInputs = [ pkgs.pkg-config ];
           buildInputs = [ pkgs.openssl ];
-          cargoBuildFlags = [ "--bin" "aw" ];
-
-          meta = with pkgs.lib; {
-            description = "Gitlab Work CLI";
-            license = licenses.mit;
-            platforms = platforms.linux;
-          };
         };
+
+        gw-cli = pkgs.rustPlatform.buildRustPackage ({
+          pname = "gw";
+          version = "0.1.0";
+          cargoBuildFlags = [ "-p" "gw" ]; # имя пакета из cli/Cargo.toml
+        } // commonArgs);
+
+        gw-backend = pkgs.rustPlatform.buildRustPackage ({
+          pname = "gw-backend";
+          version = "0.1.0";
+          cargoBuildFlags = [ "-p" "gw-backend" ]; # имя пакета backend
+        } // commonArgs);
       in {
-        packages.default = aw-cli;
+        packages = {
+          default = gw-cli;
+          cli = gw-cli;
+          backend = gw-backend;
+        };
       }
     );
 }
