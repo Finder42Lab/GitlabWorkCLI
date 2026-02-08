@@ -1,12 +1,14 @@
 mod builders;
-mod structs;
+pub mod structs;
 
-use gitlab::{Gitlab};
-use gitlab::api::{groups, projects, users, Query};
-use log::error;
-use helpers::LogError;
 use crate::gitlab::builders::EpicApi;
-use crate::gitlab::structs::{GlEpic, GlGroup, GlIssue, GlMergeRequest, GlProject, GlUser};
+use crate::gitlab::structs::{
+    GlEpic, GlGroup, GlIssue, GlMergeRequest, GlPipeline, GlProject, GlUser,
+};
+use gitlab::Gitlab;
+use gitlab::api::{Query, groups, projects, users};
+use helpers::LogError;
+use log::error;
 
 #[derive(Clone)]
 pub struct GitlabManager {
@@ -20,10 +22,12 @@ impl GitlabManager {
             return Err("Не указан токен".to_string()); // TODO Добавить команду установки токена
         }
 
-        let client = Gitlab::builder(host, token).cert_insecure().build();
+        let client = Gitlab::builder(host, token)
+            .cert_insecure()
+            .build();
 
         match client {
-            Ok(cl) => { Ok(Self { client: cl }) }
+            Ok(cl) => Ok(Self { client: cl }),
             Err(err) => {
                 error!("{:?}", err);
                 Err(err.to_string())
@@ -31,11 +35,16 @@ impl GitlabManager {
         }
     }
 
-    pub fn get_issue(&self, task: u64, project_id: u64) -> Result<GlIssue, String> {
+    pub fn get_issue(
+        &self,
+        task: u64,
+        project_id: u64,
+    ) -> Result<GlIssue, String> {
         let issue_url = match projects::issues::Issue::builder()
             .project(project_id)
             .issue(task)
-            .build() {
+            .build()
+        {
             Ok(url) => url,
             Err(err) => {
                 error!("{:?}", err);
@@ -54,8 +63,16 @@ impl GitlabManager {
         Ok(issue)
     }
 
-    pub fn get_parent_epic(&self, epic_iid: u16, group_id: u64) -> Result<GlEpic, String> {
-        let epic_url = match EpicApi::builder().group_id(group_id).iid(epic_iid).build() {
+    pub fn get_parent_epic(
+        &self,
+        epic_iid: u16,
+        group_id: u64,
+    ) -> Result<GlEpic, String> {
+        let epic_url = match EpicApi::builder()
+            .group_id(group_id)
+            .iid(epic_iid)
+            .build()
+        {
             Ok(url) => url,
             Err(err) => {
                 error!("{:?}", err);
@@ -72,13 +89,64 @@ impl GitlabManager {
         };
 
         match epic.parent_iid {
-            Some(iid) => {
-                self.get_parent_epic(iid, group_id)
-            }
-            None => {
-                Ok(epic)
-            }
+            Some(iid) => self.get_parent_epic(iid, group_id),
+            None => Ok(epic),
         }
+    }
+
+    pub fn create_mr(
+        &self,
+        source_branch: String,
+        target_branch: String,
+        project_id: u64,
+        title: Option<String>,
+        description: Option<String>,
+    ) -> Result<GlMergeRequest, String> {
+        let current_user = self.get_current_user()?;
+
+        let description = description.unwrap_or_else(|| "".to_string());
+        let title = title.unwrap_or_else(|| target_branch.to_string());
+
+        let request = projects::merge_requests::CreateMergeRequest::builder()
+            .project(project_id)
+            .source_branch(source_branch)
+            .target_branch(target_branch.to_string())
+            .title(title)
+            .description(description)
+            .assignee(current_user.id)
+            .build()
+            .log_error()?;
+
+        let mr: GlMergeRequest = request
+            .query(&self.client)
+            .log_error()?;
+
+        Ok(mr)
+    }
+}
+
+impl GitlabManager {
+    pub fn get_group(&self, group: String) -> Result<GlGroup, String> {
+        let group_url = groups::Group::builder()
+            .group(group)
+            .build()
+            .map_err(|e| e.to_string())?;
+        let group: GlGroup = group_url
+            .query(&self.client)
+            .map_err(|e| e.to_string())?;
+
+        Ok(group)
+    }
+    pub fn get_project(&self, project: String) -> Result<GlProject, String> {
+        let project_url = projects::Project::builder()
+            .project(project)
+            .build()
+            .map_err(|e| e.to_string())?;
+        let project: GlProject = project_url
+            .query(&self.client)
+            .map_err(|e| e.to_string())?;
+
+        Ok(project)
     }
 
     pub fn get_current_user(&self) -> Result<GlUser, String> {
@@ -101,40 +169,18 @@ impl GitlabManager {
         Ok(user)
     }
 
-    pub fn create_mr(&self, source_branch: String, target_branch: String, project_id: u64, title: Option<String>, description: Option<String>,) -> Result<GlMergeRequest, String> {
-        let current_user = self.get_current_user()?;
+    pub fn get_pipline(
+        &self,
+        project: u64,
+        pipline_id: u64,
+    ) -> Result<GlPipeline, String> {
+        let url = projects::pipelines::Pipeline::builder()
+            .project(project)
+            .pipeline(pipline_id)
+            .build()
+            .log_error()?;
+        let pipline: GlPipeline = url.query(&self.client).log_error()?;
 
-        let description = description.unwrap_or_else(|| { "".to_string() });
-        let title = title.unwrap_or_else(|| { target_branch.to_string() });
-
-        let request = projects::merge_requests::CreateMergeRequest
-        ::builder()
-            .project(project_id)
-            .source_branch(source_branch)
-            .target_branch(target_branch.to_string())
-            .title(title)
-            .description(description)
-            .assignee(current_user.id)
-            .build().log_error()?;
-
-        let mr: GlMergeRequest = request.query(&self.client).log_error()?;
-
-        Ok(mr)
-    }
-}
-
-
-impl GitlabManager {
-    pub fn get_group(&self, group: String) -> Result<GlGroup, String> {
-        let group_url = groups::Group::builder().group(group).build().map_err(|e| e.to_string())?;
-        let group: GlGroup = group_url.query(&self.client).map_err(|e| e.to_string())?;
-
-        Ok(group)
-    }
-    pub fn get_project(&self, project: String) -> Result<GlProject, String> {
-        let project_url = projects::Project::builder().project(project).build().map_err(|e| e.to_string())?;
-        let project: GlProject = project_url.query(&self.client).map_err(|e| e.to_string())?;
-
-        Ok(project)
+        Ok(pipline)
     }
 }

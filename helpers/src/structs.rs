@@ -1,17 +1,18 @@
+use crate::project_config::get_project_config_file_path;
+use log::error;
+use serde::{Deserialize, Serialize};
+use std::backtrace::Backtrace;
 use std::fmt::{Debug, Display};
 use std::fs::File;
 use std::io::{BufWriter, Write};
 use std::path::PathBuf;
-use log::error;
-use serde::{Deserialize, Serialize};
-use crate::project_config::get_project_config_file_path;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct AppConfig {
     pub gitlab_token: String,
     pub gitlab_host: String,
+    pub server_port: u16,
 }
-
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct ProjectConfig {
@@ -24,7 +25,7 @@ impl ProjectConfig {
         let config_path = get_project_config_file_path(dir);
 
         let file = match File::create(config_path) {
-            Ok(f) => {f}
+            Ok(f) => f,
             Err(err) => {
                 error!("{:?}", err);
                 return Err(err.to_string());
@@ -32,16 +33,18 @@ impl ProjectConfig {
         };
         let mut writer = BufWriter::new(file);
 
-        serde_json::to_writer(&mut writer, &self).map_err(|err| err.to_string())?;
-        writer.flush().map_err(|err| err.to_string())?;
+        serde_json::to_writer(&mut writer, &self)
+            .map_err(|err| err.to_string())?;
+        writer
+            .flush()
+            .map_err(|err| err.to_string())?;
 
         Ok(())
     }
 }
 
-
-pub trait LogError<T>  {
-    fn log_error(self,) -> Result<T, String>;
+pub trait LogError<T> {
+    fn log_error(self) -> Result<T, String>;
 }
 
 impl<T, E> LogError<T> for Result<T, E>
@@ -50,7 +53,8 @@ where
 {
     fn log_error(self) -> Result<T, String> {
         if let Err(ref e) = self {
-            error!("{:?}", e);
+            let bt = Backtrace::force_capture();
+            error!("{:?}\n{:?}", e, bt);
             return Err(e.to_string());
         }
         Ok(self.unwrap())

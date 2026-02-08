@@ -19,7 +19,7 @@
         };
 
         gw-cli = pkgs.rustPlatform.buildRustPackage ({
-          pname = "gw";
+          pname = "gw"
           version = "0.1.0";
           cargoBuildFlags = [ "-p" "gw" ]; # имя пакета из cli/Cargo.toml
         } // commonArgs);

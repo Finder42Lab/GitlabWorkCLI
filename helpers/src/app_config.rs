@@ -9,6 +9,7 @@ pub fn load_app_config() -> AppConfig {
     let default_config = AppConfig {
         gitlab_token: "".to_string(),
         gitlab_host: "gitlab.example.com".to_string(),
+        server_port: 9042,
     };
 
     let config_path = match get_app_config_file_path() {

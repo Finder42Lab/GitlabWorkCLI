@@ -1,5 +1,5 @@
 [package]
-name = "backend"
+name = "gw-backend"
 version = "0.1.0"
 edition = "2024"
 
@@ -8,10 +8,10 @@ name = "gw-backend"
 path = "src/main.rs"
 
 [dependencies]
-serde = { version = "1.0.145", features = ["derive"] }
-serde_json = "1"
 log = "0.4.29"
 simplelog = "0.12"
-url = "2.5.8"
-helpers = {path = "../helpers"}
-managers = {path = "../managers"}
+helpers = { path = "../helpers" }
+managers = { path = "../managers" }
+rouille = "3.6"
+rusqlite = "0.38"
+open = "5"
