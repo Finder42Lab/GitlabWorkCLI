@@ -22,9 +22,7 @@ impl GitlabManager {
             return Err("Не указан токен".to_string()); // TODO Добавить команду установки токена
         }
 
-        let client = Gitlab::builder(host, token)
-            .cert_insecure()
-            .build();
+        let client = Gitlab::builder(host, token).cert_insecure().build();
 
         match client {
             Ok(cl) => Ok(Self { client: cl }),
@@ -68,17 +66,14 @@ impl GitlabManager {
         epic_iid: u16,
         group_id: u64,
     ) -> Result<GlEpic, String> {
-        let epic_url = match EpicApi::builder()
-            .group_id(group_id)
-            .iid(epic_iid)
-            .build()
-        {
-            Ok(url) => url,
-            Err(err) => {
-                error!("{:?}", err);
-                return Err(err.to_string());
-            }
-        };
+        let epic_url =
+            match EpicApi::builder().group_id(group_id).iid(epic_iid).build() {
+                Ok(url) => url,
+                Err(err) => {
+                    error!("{:?}", err);
+                    return Err(err.to_string());
+                }
+            };
 
         let epic: GlEpic = match epic_url.query(&self.client) {
             Ok(epic) => epic,
@@ -117,9 +112,7 @@ impl GitlabManager {
             .build()
             .log_error()?;
 
-        let mr: GlMergeRequest = request
-            .query(&self.client)
-            .log_error()?;
+        let mr: GlMergeRequest = request.query(&self.client).log_error()?;
 
         Ok(mr)
     }
@@ -131,9 +124,8 @@ impl GitlabManager {
             .group(group)
             .build()
             .map_err(|e| e.to_string())?;
-        let group: GlGroup = group_url
-            .query(&self.client)
-            .map_err(|e| e.to_string())?;
+        let group: GlGroup =
+            group_url.query(&self.client).map_err(|e| e.to_string())?;
 
         Ok(group)
     }
@@ -142,9 +134,8 @@ impl GitlabManager {
             .project(project)
             .build()
             .map_err(|e| e.to_string())?;
-        let project: GlProject = project_url
-            .query(&self.client)
-            .map_err(|e| e.to_string())?;
+        let project: GlProject =
+            project_url.query(&self.client).map_err(|e| e.to_string())?;
 
         Ok(project)
     }
@@ -182,5 +173,56 @@ impl GitlabManager {
         let pipline: GlPipeline = url.query(&self.client).log_error()?;
 
         Ok(pipline)
+    }
+
+    pub fn get_pipline_by_sha(
+        &self,
+        project: u64,
+        sha: String,
+    ) -> Result<Option<GlPipeline>, String> {
+        let url = projects::pipelines::Pipelines::builder()
+            .project(project)
+            .sha(sha)
+            .build()
+            .log_error()?;
+        let pipline: Vec<GlPipeline> = url.query(&self.client).log_error()?;
+
+        if pipline.is_empty() {
+            return Ok(None);
+        }
+
+        Ok(Some(pipline[0].clone()))
+    }
+
+    pub fn get_merge_request(
+        &self,
+        project: u64,
+        mr_id: u64,
+    ) -> Result<GlMergeRequest, String> {
+        let url = projects::merge_requests::MergeRequest::builder()
+            .project(project)
+            .merge_request(mr_id)
+            .build()
+            .log_error()?;
+
+        let mr: GlMergeRequest = url.query(&self.client).log_error()?;
+
+        Ok(mr)
+    }
+
+    pub fn merge_mr(
+        &self,
+        project: u64,
+        mr_id: u64,
+    ) -> Result<GlMergeRequest, String> {
+        let url = projects::merge_requests::MergeMergeRequest::builder()
+            .project(project)
+            .merge_request(mr_id)
+            .build()
+            .log_error()?;
+
+        let mr = url.query(&self.client).log_error()?;
+
+        Ok(mr)
     }
 }

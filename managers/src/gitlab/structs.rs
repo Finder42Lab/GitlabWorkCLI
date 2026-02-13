@@ -19,20 +19,9 @@ pub struct GlEpic {
 
 impl GlEpic {
     pub fn is_techdebt(&self) -> bool {
-        (self
-            .labels
-            .iter()
-            .find(|l| *l == "тип::техдолг")
-            .is_some()
-            && self
-                .labels
-                .iter()
-                .find(|l| *l == "корневой эпик")
-                .is_none())
-            || self
-                .title
-                .to_lowercase()
-                .contains("техдолг")
+        (self.labels.iter().find(|l| *l == "тип::техдолг").is_some()
+            && self.labels.iter().find(|l| *l == "корневой эпик").is_none())
+            || self.title.to_lowercase().contains("техдолг")
     }
 
     pub fn get_branch_name(&self) -> String {
@@ -68,7 +57,7 @@ pub struct GlProject {
     pub web_url: String,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum GlPiplineStatus {
     Created,
@@ -124,7 +113,7 @@ impl Display for GlPiplineStatus {
 }
 
 impl GlPiplineStatus {
-    pub fn is_cancelled(&self) -> bool {
+    pub fn is_failed(&self) -> bool {
         match self {
             GlPiplineStatus::Failed
             | GlPiplineStatus::Canceled
@@ -141,12 +130,13 @@ impl GlPiplineStatus {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct GlPipeline {
     pub id: u64,
     pub iid: u64,
     pub status: GlPiplineStatus,
     pub web_url: String,
+    pub sha: String,
 }
 
 #[derive(Deserialize, Serialize, Debug)]

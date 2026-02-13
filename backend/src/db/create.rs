@@ -13,6 +13,7 @@ pub fn create_db(db_path: &PathBuf) -> Result<(), String> {
             web_url text not null,
             status varchar(20),
             fail_message text,
+            sha text,
             notify_on_end bool default false
         )",
         (),
@@ -25,11 +26,11 @@ pub fn create_db(db_path: &PathBuf) -> Result<(), String> {
             mr_id integer not null,
             project_id integer not null,
             web_url text not null,
-            watch_pipline_id integer references watch__piplines (id),
             status varchar(20),
             has_conflicts boolean default false,
             fail_message text,
             notify_on_end bool default false,
+            merge_commit_sha text,
             auto_merge bool default false,
             watch_pipline_after_merge bool default false
         )",

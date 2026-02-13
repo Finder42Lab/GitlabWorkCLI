@@ -8,7 +8,6 @@ pub struct WatchPipilineResult {
     pub gl_pipline_id: i32,
     pub project_id: i32,
     pub notify_on_end: bool,
-    pub mr_web_url: Option<String>,
 }
 
 pub fn watch_piplines(
@@ -20,10 +19,8 @@ pub fn watch_piplines(
     let mut piplines_query = conn
         .prepare(
             "\
-    select wp.id, wp.gl_pipline_id, wp.project_id, wp.notify_on_end, wm.web_url
+    select wp.id, wp.gl_pipline_id, wp.project_id, wp.notify_on_end
     from watch__piplines wp
-             left join watch__mr wm
-                  on wp.id = wm.watch_pipline_id
     where wp.status not in ('success', 'failed', 'canceled');
     ",
         )
@@ -36,7 +33,6 @@ pub fn watch_piplines(
                 gl_pipline_id: row.get(1).unwrap(),
                 project_id: row.get(2).unwrap(),
                 notify_on_end: row.get(3).unwrap(),
-                mr_web_url: row.get(4).unwrap(),
             })
         })
         .log_error()?;
@@ -62,7 +58,7 @@ pub fn watch_piplines(
             let mut title = "".to_string();
             let mut message = "".to_string();
 
-            if pipeline.status.is_cancelled() {
+            if pipeline.status.is_failed() {
                 title = "Ошибка пайплайна".to_string();
                 message =
                     format!("Пайплайн {} упал или был отменен", pipeline.id);
@@ -78,16 +74,14 @@ pub fn watch_piplines(
                 continue;
             }
 
-            let mut actions =
-                vec![(pipeline.web_url, "Открыть пайплайн".to_string())];
-
-            if let Some(mr_url) = watch_pipeline.mr_web_url {
-                actions.push((mr_url, "Открыть MR".to_string()));
-            }
-
-            Notifier::notify(title, Some(message), actions, |url| {
-                let _ = open::that(url).log_error();
-            });
+            Notifier::notify(
+                title,
+                Some(message),
+                vec![(pipeline.web_url, "Открыть пайплайн".to_string())],
+                |url| {
+                    let _ = open::that(url).log_error();
+                },
+            );
         }
     }
 

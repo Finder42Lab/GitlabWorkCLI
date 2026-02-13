@@ -35,9 +35,7 @@ impl ProjectConfig {
 
         serde_json::to_writer(&mut writer, &self)
             .map_err(|err| err.to_string())?;
-        writer
-            .flush()
-            .map_err(|err| err.to_string())?;
+        writer.flush().map_err(|err| err.to_string())?;
 
         Ok(())
     }
@@ -54,7 +52,7 @@ where
     fn log_error(self) -> Result<T, String> {
         if let Err(ref e) = self {
             let bt = Backtrace::force_capture();
-            error!("{:?}\n{:?}", e, bt);
+            error!("{:?}\n{:#?}\n", e, bt);
             return Err(e.to_string());
         }
         Ok(self.unwrap())
