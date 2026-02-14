@@ -2,8 +2,9 @@ mod db;
 mod watchers;
 
 use crate::db::create::create_db;
+use crate::watchers::watch_merged_pipeline::watch_merged_mrs;
 use crate::watchers::watch_mr::watch_mrs;
-use crate::watchers::watch_pipline::watch_piplines;
+use crate::watchers::watch_pipeline::watch_pipelines;
 use helpers::{LogError, get_app_config_dir, load_app_config};
 use log::{LevelFilter, error};
 use managers::GitlabManager;
@@ -50,7 +51,8 @@ fn main() {
         };
 
         loop {
-            let _ = watch_piplines(&db_path, &gitlab_manager);
+            let _ = watch_merged_mrs(&db_path, &gitlab_manager);
+            let _ = watch_pipelines(&db_path, &gitlab_manager);
             let _ = watch_mrs(&db_path, &gitlab_manager);
 
             sleep(Duration::from_secs(10));

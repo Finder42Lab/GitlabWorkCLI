@@ -44,6 +44,8 @@ pub fn create_db(db_path: &PathBuf) -> Result<(), String> {
             status varchar(20) not null,
             source_branch varchar(40) not null,
             target_branch varchar(40) not null,
+            project_id integer not null,
+            steps_count integer not null,
             fail_message text,
             watch_pipline_after_complete bool default false,
             watch_pipline_id integer

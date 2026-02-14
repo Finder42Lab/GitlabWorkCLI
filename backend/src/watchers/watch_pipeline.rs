@@ -5,12 +5,12 @@ use std::path::PathBuf;
 
 pub struct WatchPipilineResult {
     pub id: i32,
-    pub gl_pipline_id: i32,
+    pub gl_pipeline_id: i32,
     pub project_id: i32,
     pub notify_on_end: bool,
 }
 
-pub fn watch_piplines(
+pub fn watch_pipelines(
     db_path: &PathBuf,
     gitlab_manager: &GitlabManager,
 ) -> Result<(), String> {
@@ -26,22 +26,22 @@ pub fn watch_piplines(
         )
         .log_error()?;
 
-    let piplines = piplines_query
+    let pipelines = piplines_query
         .query_map([], |row| {
             Ok(WatchPipilineResult {
                 id: row.get(0).unwrap(),
-                gl_pipline_id: row.get(1).unwrap(),
+                gl_pipeline_id: row.get(1).unwrap(),
                 project_id: row.get(2).unwrap(),
                 notify_on_end: row.get(3).unwrap(),
             })
         })
         .log_error()?;
 
-    for watch_pipeline in piplines {
+    for watch_pipeline in pipelines {
         if let Ok(watch_pipeline) = watch_pipeline {
-            let pipeline = gitlab_manager.get_pipline(
+            let pipeline = gitlab_manager.get_pipeline(
                 watch_pipeline.project_id as u64,
-                watch_pipeline.gl_pipline_id as u64,
+                watch_pipeline.gl_pipeline_id as u64,
             )?;
 
             let res = conn

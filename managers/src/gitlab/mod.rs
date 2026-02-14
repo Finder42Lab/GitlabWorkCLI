@@ -160,22 +160,22 @@ impl GitlabManager {
         Ok(user)
     }
 
-    pub fn get_pipline(
+    pub fn get_pipeline(
         &self,
         project: u64,
-        pipline_id: u64,
+        pipeline_id: u64,
     ) -> Result<GlPipeline, String> {
         let url = projects::pipelines::Pipeline::builder()
             .project(project)
-            .pipeline(pipline_id)
+            .pipeline(pipeline_id)
             .build()
             .log_error()?;
-        let pipline: GlPipeline = url.query(&self.client).log_error()?;
+        let pipeline: GlPipeline = url.query(&self.client).log_error()?;
 
-        Ok(pipline)
+        Ok(pipeline)
     }
 
-    pub fn get_pipline_by_sha(
+    pub fn get_pipeline_by_sha(
         &self,
         project: u64,
         sha: String,
@@ -185,13 +185,13 @@ impl GitlabManager {
             .sha(sha)
             .build()
             .log_error()?;
-        let pipline: Vec<GlPipeline> = url.query(&self.client).log_error()?;
+        let pipeline: Vec<GlPipeline> = url.query(&self.client).log_error()?;
 
-        if pipline.is_empty() {
+        if pipeline.is_empty() {
             return Ok(None);
         }
 
-        Ok(Some(pipline[0].clone()))
+        Ok(Some(pipeline[0].clone()))
     }
 
     pub fn get_merge_request(

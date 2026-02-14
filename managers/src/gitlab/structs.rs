@@ -59,7 +59,7 @@ pub struct GlProject {
 
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 #[serde(rename_all = "snake_case")]
-pub enum GlPiplineStatus {
+pub enum GlPipelineStatus {
     Created,
     WaitingForResource,
     Preparing,
@@ -73,58 +73,58 @@ pub enum GlPiplineStatus {
     Scheduled,
 }
 
-impl From<String> for GlPiplineStatus {
+impl From<String> for GlPipelineStatus {
     fn from(s: String) -> Self {
         match s.as_ref() {
-            "created" => GlPiplineStatus::Created,
-            "waiting_for_resource" => GlPiplineStatus::WaitingForResource,
-            "preparing" => GlPiplineStatus::Preparing,
-            "pending" => GlPiplineStatus::Pending,
-            "running" => GlPiplineStatus::Running,
-            "success" => GlPiplineStatus::Success,
-            "failed" => GlPiplineStatus::Failed,
-            "cancelled" => GlPiplineStatus::Canceled,
-            "skipped" => GlPiplineStatus::Skipped,
-            "manual" => GlPiplineStatus::Manual,
-            "scheduled" => GlPiplineStatus::Scheduled,
-            _ => GlPiplineStatus::Failed,
+            "created" => GlPipelineStatus::Created,
+            "waiting_for_resource" => GlPipelineStatus::WaitingForResource,
+            "preparing" => GlPipelineStatus::Preparing,
+            "pending" => GlPipelineStatus::Pending,
+            "running" => GlPipelineStatus::Running,
+            "success" => GlPipelineStatus::Success,
+            "failed" => GlPipelineStatus::Failed,
+            "cancelled" => GlPipelineStatus::Canceled,
+            "skipped" => GlPipelineStatus::Skipped,
+            "manual" => GlPipelineStatus::Manual,
+            "scheduled" => GlPipelineStatus::Scheduled,
+            _ => GlPipelineStatus::Failed,
         }
     }
 }
 
-impl Display for GlPiplineStatus {
+impl Display for GlPipelineStatus {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let str = match self {
-            GlPiplineStatus::Created => "created",
-            GlPiplineStatus::WaitingForResource => "waiting_for_resource",
-            GlPiplineStatus::Preparing => "preparing",
-            GlPiplineStatus::Pending => "pending",
-            GlPiplineStatus::Running => "running",
-            GlPiplineStatus::Success => "success",
-            GlPiplineStatus::Failed => "failed",
-            GlPiplineStatus::Canceled => "cancelled",
-            GlPiplineStatus::Skipped => "skipped",
-            GlPiplineStatus::Manual => "manual",
-            GlPiplineStatus::Scheduled => "scheduled",
+            GlPipelineStatus::Created => "created",
+            GlPipelineStatus::WaitingForResource => "waiting_for_resource",
+            GlPipelineStatus::Preparing => "preparing",
+            GlPipelineStatus::Pending => "pending",
+            GlPipelineStatus::Running => "running",
+            GlPipelineStatus::Success => "success",
+            GlPipelineStatus::Failed => "failed",
+            GlPipelineStatus::Canceled => "cancelled",
+            GlPipelineStatus::Skipped => "skipped",
+            GlPipelineStatus::Manual => "manual",
+            GlPipelineStatus::Scheduled => "scheduled",
             _ => "failed",
         };
         write!(f, "{}", str)
     }
 }
 
-impl GlPiplineStatus {
+impl GlPipelineStatus {
     pub fn is_failed(&self) -> bool {
         match self {
-            GlPiplineStatus::Failed
-            | GlPiplineStatus::Canceled
-            | GlPiplineStatus::Skipped => true,
+            GlPipelineStatus::Failed
+            | GlPipelineStatus::Canceled
+            | GlPipelineStatus::Skipped => true,
             _ => false,
         }
     }
     pub fn is_success(&self) -> bool {
         let t = [(1, 2)];
         match self {
-            GlPiplineStatus::Success => true,
+            GlPipelineStatus::Success => true,
             _ => false,
         }
     }
@@ -134,7 +134,7 @@ impl GlPiplineStatus {
 pub struct GlPipeline {
     pub id: u64,
     pub iid: u64,
-    pub status: GlPiplineStatus,
+    pub status: GlPipelineStatus,
     pub web_url: String,
     pub sha: String,
 }

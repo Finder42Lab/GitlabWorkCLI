@@ -1,16 +1,8 @@
 use helpers::{LogError, Notifier};
 use managers::GitlabManager;
-use managers::gitlab::structs::{
-    GlMergeRequest, GlMergeRequestState, GlPipeline, GlPiplineStatus,
-};
+use managers::gitlab::structs::{GlMergeRequest, GlMergeRequestState};
 use rusqlite::Connection;
 use std::path::PathBuf;
-
-struct WatchMrPipline {
-    pub id: i32,
-    pub gl_id: i32,
-    pub status: GlPiplineStatus,
-}
 
 struct WatchMRChainMrTask {
     pub id: i32,
@@ -26,7 +18,7 @@ struct WatchMRResult {
 
     pub notify_on_end: bool,
     pub auto_merge: bool,
-    pub watch_pipline_after_merge: bool,
+    pub watch_pipeline_after_merge: bool,
 
     pub chainmr_task: Option<WatchMRChainMrTask>,
 }
@@ -38,7 +30,10 @@ impl WatchMRResult {
                 format!("MR !{}", self.mr_id)
             }
             Some(task) => {
-                format!("{} -> {}", task.source_branch, task.target_branch)
+                format!(
+                    "#{}: {} -> {}",
+                    task.id, task.source_branch, task.target_branch,
+                )
             }
         }
     }
@@ -81,14 +76,14 @@ pub fn watch_mrs(
 
         match mr.head_pipeline {
             None => {}
-            Some(pipline) => {
-                if pipline.status.is_failed() {
+            Some(pipeline) => {
+                if pipeline.status.is_failed() {
                     Notifier::notify(
                         watch_mr.get_title(),
                         Some("Упал пайплайн!".to_string()),
                         vec![
                             (mr.web_url, "Открыть MR".to_string()),
-                            (pipline.web_url, "Открыть пайплайн".to_string()),
+                            (pipeline.web_url, "Открыть пайплайн".to_string()),
                         ],
                         |url| {
                             let _ = open::that(url).log_error();
@@ -98,7 +93,7 @@ pub fn watch_mrs(
                     continue;
                 }
 
-                if !pipline.status.is_success() {
+                if !pipeline.status.is_success() {
                     continue;
                 }
             }
@@ -149,14 +144,17 @@ pub fn watch_mrs(
                 where id = ?2",
                     (merged_mr.merge_commit_sha, watch_mr.id),
                 );
-                Notifier::notify(
-                    watch_mr.get_title(),
-                    Some(format!("MR {} смерджен!", mr.id)),
-                    vec![(mr.web_url, "Открыть MR".to_string())],
-                    |url| {
-                        let _ = open::that(url).log_error();
-                    },
-                )
+
+                if watch_mr.notify_on_end {
+                    Notifier::notify(
+                        watch_mr.get_title(),
+                        Some(format!("MR {} смерджен!", mr.id)),
+                        vec![(mr.web_url, "Открыть MR".to_string())],
+                        |url| {
+                            let _ = open::that(url).log_error();
+                        },
+                    )
+                }
             }
             Err(err) => Notifier::notify(
                 watch_mr.get_title(),
@@ -203,7 +201,7 @@ fn get_watch_mrs(conn: &Connection) -> Result<Vec<WatchMRResult>, String> {
                 project_id: row.get(2).log_error().unwrap(),
                 notify_on_end: row.get(3).log_error().unwrap(),
                 auto_merge: row.get(4).log_error().unwrap(),
-                watch_pipline_after_merge: row.get(5).log_error().unwrap(),
+                watch_pipeline_after_merge: row.get(5).log_error().unwrap(),
                 chainmr_task: match chainmr_task_id {
                     None => None,
                     Some(id) => Some(WatchMRChainMrTask {
