@@ -105,6 +105,10 @@ pub fn watch_mrs(
 
         match mr.state {
             GlMergeRequestState::Closed => {
+                if !watch_mr.notify_on_end {
+                    continue
+                }
+                
                 Notifier::notify(
                     watch_mr.get_title(),
                     Some("MR закрыт!".to_string()),

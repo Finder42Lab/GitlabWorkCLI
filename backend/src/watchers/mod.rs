@@ -1,4 +1,4 @@
-pub mod watch_merged_pipeline;
+pub mod watch_merged_mrs;
 pub mod watch_mr;
 pub mod watch_pipeline;
-mod watch_task;
+pub mod watch_task;

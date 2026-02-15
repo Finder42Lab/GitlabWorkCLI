@@ -2,7 +2,7 @@ mod db;
 mod watchers;
 
 use crate::db::create::create_db;
-use crate::watchers::watch_merged_pipeline::watch_merged_mrs;
+use crate::watchers::watch_merged_mrs::watch_merged_mrs;
 use crate::watchers::watch_mr::watch_mrs;
 use crate::watchers::watch_pipeline::watch_pipelines;
 use helpers::{LogError, get_app_config_dir, load_app_config};
@@ -13,6 +13,7 @@ use simplelog::{CombinedLogger, Config, WriteLogger};
 use std::fs::File;
 use std::thread::{sleep, spawn};
 use std::time::Duration;
+use crate::watchers::watch_task::watch_chainmr;
 
 fn main() {
     let dir = get_app_config_dir().unwrap();
@@ -54,6 +55,7 @@ fn main() {
             let _ = watch_merged_mrs(&db_path, &gitlab_manager);
             let _ = watch_pipelines(&db_path, &gitlab_manager);
             let _ = watch_mrs(&db_path, &gitlab_manager);
+            let _ = watch_chainmr(&db_path, &gitlab_manager);
 
             sleep(Duration::from_secs(10));
         }
