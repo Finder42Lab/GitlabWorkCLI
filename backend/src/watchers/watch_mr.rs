@@ -106,9 +106,9 @@ pub fn watch_mrs(
         match mr.state {
             GlMergeRequestState::Closed => {
                 if !watch_mr.notify_on_end {
-                    continue
+                    continue;
                 }
-                
+
                 Notifier::notify(
                     watch_mr.get_title(),
                     Some("MR закрыт!".to_string()),
@@ -197,29 +197,30 @@ fn get_watch_mrs(conn: &Connection) -> Result<Vec<WatchMRResult>, String> {
 
     let merge_requests = mr_query
         .query_map([], |row| {
-            let chainmr_task_id: Option<i32> = row.get(6).log_error().unwrap();
+            let chainmr_task_id: Option<i32> = row.get(6)?;
 
             Ok(WatchMRResult {
-                id: row.get(0).log_error().unwrap(),
-                mr_id: row.get(1).log_error().unwrap(),
-                project_id: row.get(2).log_error().unwrap(),
-                notify_on_end: row.get(3).log_error().unwrap(),
-                auto_merge: row.get(4).log_error().unwrap(),
-                watch_pipeline_after_merge: row.get(5).log_error().unwrap(),
+                id: row.get(0)?,
+                mr_id: row.get(1)?,
+                project_id: row.get(2)?,
+                notify_on_end: row.get(3)?,
+                auto_merge: row.get(4)?,
+                watch_pipeline_after_merge: row.get(5)?,
                 chainmr_task: match chainmr_task_id {
                     None => None,
                     Some(id) => Some(WatchMRChainMrTask {
                         id,
-                        source_branch: row.get(7).log_error().unwrap(),
-                        target_branch: row.get(8).log_error().unwrap(),
+                        source_branch: row.get(7)?,
+                        target_branch: row.get(8)?,
                     }),
                 },
-                has_conflicts: row.get(9).log_error().unwrap(),
+                has_conflicts: row.get(9)?,
             })
         })
         .log_error()?;
 
-    Ok(merge_requests.map(|i| i.log_error().unwrap()).collect())
+    let vec: Result<Vec<WatchMRResult>, _> = merge_requests.collect();
+    vec.log_error()
 }
 
 fn update_watch_mr(

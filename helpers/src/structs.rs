@@ -1,5 +1,6 @@
 use crate::project_config::get_project_config_file_path;
 use log::error;
+use rusqlite::types::{FromSql, FromSqlResult, ValueRef};
 use serde::{Deserialize, Serialize};
 use std::backtrace::Backtrace;
 use std::fmt::{Debug, Display};
@@ -56,5 +57,42 @@ where
             return Err(e.to_string());
         }
         Ok(self.unwrap())
+    }
+}
+
+pub struct Branch {
+    branch: String,
+}
+
+impl Branch {
+    pub fn new(branch: String) -> Self {
+        Self { branch }
+    }
+
+    pub fn get_task_or_empty(&self) -> Option<u64> {
+        if self.branch.ends_with("-task") {
+            return Some(self.branch.replace("-task", "").parse().unwrap());
+        }
+
+        None
+    }
+}
+
+impl Display for Branch {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.branch)
+    }
+}
+
+impl From<String> for Branch {
+    fn from(branch: String) -> Self {
+        Self::new(branch)
+    }
+}
+impl FromSql for Branch {
+    fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
+        let str_value = value.as_str()?;
+
+        Ok(Self::new(str_value.to_string()))
     }
 }

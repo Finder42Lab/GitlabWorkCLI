@@ -15,3 +15,4 @@ managers = { path = "../managers" }
 rouille = "3.6"
 rusqlite = "0.38"
 open = "5"
+regex = "1.12.3"

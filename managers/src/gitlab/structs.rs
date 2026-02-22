@@ -1,3 +1,4 @@
+use helpers::Branch;
 use serde::{Deserialize, Serialize};
 use std::fmt::Display;
 
@@ -24,8 +25,8 @@ impl GlEpic {
             || self.title.to_lowercase().contains("техдолг")
     }
 
-    pub fn get_branch_name(&self) -> String {
-        format!("feature/{}", self.iid)
+    pub fn get_branch_name(&self) -> Branch {
+        Branch::from(format!("feature/{}", self.iid))
     }
 }
 
